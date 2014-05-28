@@ -334,8 +334,11 @@ set(simu_MOC_HDRS
   modeledit/node.h
 )
 
-set( simu_SRCS ${simu_SRCS} ${common_SRCS} )
-qt4_wrap_cpp(simu_SRCS ${simu_MOC_HDRS} ${common_MOC_HDRS} )
+
+SET(googleanalytics_simu_MOC "${CMAKE_CURRENT_BINARY_DIR}/moc_googleanalytics_simu.cxx")
+QT4_GENERATE_MOC(googleanalytics.h ${googleanalytics_simu_MOC})
+set( simu_SRCS ${simu_SRCS} ${common_SRCS} ${googleanalytics_simu_MOC})
+qt4_wrap_cpp(simu_SRCS ${simu_MOC_HDRS})
 qt4_add_resources(simu_SRCS companion.qrc) # TODO not needed
 
 if(WIN32)
