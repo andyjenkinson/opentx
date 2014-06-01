@@ -197,14 +197,14 @@ void writeLogs()
 #endif
 
 #if defined(FRSKY_SPORT)
-      f_printf(&g_oLogFile, "%d,%d,", frskyData.rssi[1].value, frskyData.rssi[0].value);
+      f_printf(&g_oLogFile, "%d,%d,", frskyData.rssi[1].raw, frskyData.rssi[0].raw);
 #elif defined(FRSKY)
-      f_printf(&g_oLogFile, "%d,%d,%d,", frskyStreaming, frskyData.rssi[0].value, frskyData.rssi[1].value);
+      f_printf(&g_oLogFile, "%d,%d,%d,", frskyStreaming, frskyData.rssi[0].raw, frskyData.rssi[1].raw);
 #endif
 
 #if defined(FRSKY)
       for (uint8_t i=0; i<2; i++) {
-        int16_t converted_value = applyChannelRatio(i, frskyData.analog[i].value);
+        int16_t converted_value = applyChannelRatio(i, frskyData.analog[i].raw);
         f_printf(&g_oLogFile, "%d.%02d,", converted_value/100, converted_value%100);
       }
 #endif

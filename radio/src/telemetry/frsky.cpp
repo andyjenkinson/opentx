@@ -99,37 +99,25 @@ TelemetryProtocol getTelemetryProtocol()
 
 void FrskyValueWithMin::set(uint8_t value)
 {
-#if defined(CPUARM)
-  if (this->value == 0) {
-    memset(values, value, TELEMETRY_AVERAGE_COUNT);
+  /*
+    Compare previous an new values, if they differ too much
+    then consider this new data point as invalid (a glitch)
+    and ignore its value.
+    If new value is valid and has a big change, it will still
+    get trough, but it will take another set() call.
+    In effect we alre only fitering glithes that last only one reading.
+  */
+  if (abs((int16_t)raw - (int16_t)value) < FRSKY_MAX_CHANGE) {
+    //normal change
     this->value = value;
   }
-  else {
-    unsigned int sum = 0;
-    for (int i=0; i<TELEMETRY_AVERAGE_COUNT-1; i++) {
-      uint8_t tmp = values[i+1];
-      values[i] = tmp;
-      sum += tmp;
-    }
-    values[TELEMETRY_AVERAGE_COUNT-1] = value;
-    sum += value;
-    this->value = sum/TELEMETRY_AVERAGE_COUNT;
-  }
-#else
-  if (this->value == 0) {
-    this->value = value;
-  }
-  else {
-    sum += value;
-    if (link_counter == 0) {
-      this->value = sum / (IS_FRSKY_D_PROTOCOL() ? FRSKY_D_AVERAGING : FRSKY_SPORT_AVERAGING);
-      sum = 0;
-    }
-  }
-#endif
+  raw = value;
 
-  if (!min || value < min) {
-    min = value;
+  /*
+    I think min (and max) should use filtered value as input
+  */
+  if (!min || this->value < min) {
+    min = this->value;
   }
 }
 
@@ -139,8 +127,8 @@ void FrskyValueWithMinMax::set(uint8_t value, uint8_t unit)
   if (unit != UNIT_VOLTS) {
     this->value = value;
   }
-  if (!max || value > max) {
-    max = value;
+  if (!max || this->value > max) {
+    max = this->value;
   }
 }
 

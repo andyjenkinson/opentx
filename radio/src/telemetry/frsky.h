@@ -69,24 +69,14 @@ enum TelemetryStates {
 extern uint8_t telemetryState;
 #endif
 
-#if defined(CPUARM)
-#define TELEMETRY_AVERAGE_COUNT 4
+#define FRSKY_MAX_CHANGE    5  //defines how much can a 8bit telemetry value change between two readings
 class FrskyValueWithMin {
   public:
     uint8_t value;
     uint8_t min;
-    uint8_t values[TELEMETRY_AVERAGE_COUNT];
+    uint8_t raw;
     void set(uint8_t value);
 };
-#else
-class FrskyValueWithMin {
-  public:
-    uint8_t value;
-    uint8_t min;
-    uint16_t sum;
-    void set(uint8_t value);
-};
-#endif
 
 class FrskyValueWithMinMax: public FrskyValueWithMin {
   public:
@@ -307,7 +297,7 @@ struct FrskyData {
   FrskyValueWithMinMax analog[TELEM_ANA_COUNT];
   FrskyValueWithMin    rssi[2];
 #if defined(CPUARM)
-  FrskyValueWithMin    swr;
+  FrskyValueWithMin    swr;     //shouldn't SWR be Max value, i.e. bigger value is worse antenna and we want worst value remembered
 #endif
   FrskySerialData hub;
 };
